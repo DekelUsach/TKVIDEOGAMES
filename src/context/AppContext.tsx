@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useAuth } from './AuthContext';
+import { useUi } from './UiContext';
 import { supabase } from '../services/supabaseClient';
 
 import type { Game } from '../types';
@@ -24,6 +25,7 @@ const AppContext = createContext<AppState | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { user } = useAuth();
+    const { showAlert, showToast } = useUi();
 
     // In-memory state only (fetched from DB)
     const [likedGames, setLikedGames] = useState<Set<string>>(new Set());
@@ -58,7 +60,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const toggleLike = async (gameId: string) => {
         if (!user || user.isGuest) {
-            alert('Please login to like games');
+            showToast('Please login to like games', 'info');
             return;
         }
 
@@ -93,7 +95,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const toggleSave = (gameId: string) => {
         if (!user || user.isGuest) {
-            alert('Please login to save games');
+            showToast('Please login to save games', 'info');
             return;
         }
         // TODO: Implement 'saves' table in Supabase
@@ -102,8 +104,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             const newSet = new Set(prev);
             if (newSet.has(gameId)) {
                 newSet.delete(gameId);
+                showToast('Removed from saved', 'info');
             } else {
                 newSet.add(gameId);
+                showToast('Saved to your collection!', 'success');
             }
             return newSet;
         });
@@ -145,12 +149,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const addGame = async (game: Game): Promise<boolean> => {
         if (!user) {
-            alert('Please login to save your game');
+            showToast('Please login to save your game', 'info');
             return false;
         }
 
         if (user.isGuest) {
-            alert('Guest accounts cannot save to the cloud yet. Please creating an account via the Login button.');
+            showAlert('Guest Account', 'Guest accounts cannot save to the cloud. Please create an account via the Login button.', 'warning');
             return false;
         }
 
@@ -175,7 +179,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
         if (error) {
             console.error('[Supabase] Add game error:', error);
-            alert(`Failed to save game: ${error.message}`);
+            showAlert('Save Failed', `Failed to save game: ${error.message}`, 'error');
             return false;
         }
 

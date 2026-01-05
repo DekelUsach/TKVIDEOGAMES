@@ -14,10 +14,11 @@ import {
     Gamepad2,
     Maximize2,
     Minimize2,
-    Image as ImageIcon,
+    ImageIcon,
     Archive
 } from 'lucide-react';
 import { useAppContext } from '../../context/AppContext';
+import { useUi } from '../../context/UiContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 
@@ -59,6 +60,7 @@ export const AICreator: React.FC = () => {
     // Hooks
     const { addGame, updateGame } = useAppContext();
     const { user } = useAuth(); // Get auth context
+    const { showAlert, showToast } = useUi();
     const navigate = useNavigate();
     const location = useLocation();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -147,8 +149,9 @@ export const AICreator: React.FC = () => {
 
                 if (status === 'published') {
                     navigate('/profile');
+                    showToast('Game published successfully!', 'success');
                 } else {
-                    alert('Draft updated!');
+                    showToast('Draft updated!', 'success');
                 }
             } else {
                 console.log('[AICreator] Creating new game...');
@@ -158,17 +161,18 @@ export const AICreator: React.FC = () => {
                     if (status === 'published') {
                         console.log('[AICreator] Game published successfully, navigating...');
                         navigate('/profile');
+                        showToast('Game published!', 'success');
                     } else {
                         console.log('[AICreator] Draft saved successfully');
-                        alert('Draft saved! You can find it in your profile.');
+                        showToast('Draft saved to your profile!', 'success');
                     }
                 } else {
                     console.warn('[AICreator] Save failed (addGame returned false). Stay on page.');
                 }
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error('[AICreator] Unexpected error saving game:', err);
-            alert('An unexpected error occurred while saving.');
+            showAlert('Error', err.message || 'An unexpected error occurred while saving.', 'error');
         } finally {
             setLoading(false);
         }

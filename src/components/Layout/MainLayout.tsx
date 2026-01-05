@@ -2,6 +2,8 @@ import React, { type ReactNode } from 'react';
 import { NavBar } from '../Navigation/NavBar';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { GlobalModal } from '../UI/GlobalModal';
+import { ToastContainer } from '../UI/Toast';
 
 interface MainLayoutProps {
     children: ReactNode;
@@ -21,6 +23,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <div className="md:hidden">
                 <NavBar />
             </div>
+
+            {/* Global UI Components */}
+            <GlobalModal />
+            <ToastContainer />
         </div>
     );
 };

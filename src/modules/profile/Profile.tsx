@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Award, TrendingUp, Grid as GridIcon, X, Edit, FileCode, Trash2 } from 'lucide-react';
+import { Settings, TrendingUp, Grid as GridIcon, X, Edit, FileCode, Trash2 } from 'lucide-react';
+import { useUi } from '../../context/UiContext';
 
 export const Profile: React.FC = () => {
     const { games, deleteGame } = useAppContext();
     const { user: authUser } = useAuth();
+    const { showConfirm, showToast } = useUi();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'created' | 'drafts' | 'trending'>('created');
     const [showSettings, setShowSettings] = useState(false);
@@ -25,12 +27,17 @@ export const Profile: React.FC = () => {
 
     const handleDelete = async (e: React.MouseEvent, gameId: string, gameTitle: string) => {
         e.stopPropagation(); // Prevent opening the game
-        if (window.confirm(`Are you sure you want to delete "${gameTitle}"? This cannot be undone.`)) {
-            await deleteGame(gameId);
-            if (selectedGame?.id === gameId) {
-                setSelectedGame(null); // Close modal if open
+        showConfirm(
+            'Delete Game',
+            `Are you sure you want to delete "${gameTitle}"? This cannot be undone.`,
+            async () => {
+                await deleteGame(gameId);
+                showToast(`"${gameTitle}" deleted`, 'success');
+                if (selectedGame?.id === gameId) {
+                    setSelectedGame(null); // Close modal if open
+                }
             }
-        }
+        );
     };
 
     return (

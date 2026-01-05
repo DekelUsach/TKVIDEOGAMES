@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Search, MoreVertical, Plus, X, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useUi } from '../../context/UiContext';
 
 export const Header: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
-    const [showWelcomeToast, setShowWelcomeToast] = useState(false);
 
     // Auth Form State
     const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -19,18 +19,18 @@ export const Header: React.FC = () => {
 
     const navigate = useNavigate();
     const { user, isAuthenticated, loginAsGuest, loginWithGoogle, loginWithEmail, registerWithEmail, logout } = useAuth();
+    const { showAlert, showToast } = useUi();
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         console.log('[Debug] Search query:', searchQuery);
-        alert(`Searching for: ${searchQuery}`);
+        showToast(`Searching for: ${searchQuery}`, 'info');
     };
 
     const handleGuestLogin = () => {
         const guestUser = loginAsGuest();
         resetAndCloseModal();
-        setShowWelcomeToast(true);
-        setTimeout(() => setShowWelcomeToast(false), 3000);
+        showToast(`Welcome, ${guestUser.username}! Browsing as guest.`, 'success');
         console.log('[Auth] Logged in as guest:', guestUser.username);
     };
 
@@ -48,7 +48,7 @@ export const Header: React.FC = () => {
             }
             // Success
             resetAndCloseModal();
-            alert(authMode === 'login' ? 'Logged in successfully!' : 'Account created! Please check your email.');
+            showToast(authMode === 'login' ? 'Logged in successfully!' : 'Account created! Please check your email.', 'success');
         } catch (err: any) {
             console.error('Auth Error:', err);
             setAuthError(err.message || 'Authentication failed');
@@ -114,7 +114,7 @@ export const Header: React.FC = () => {
                                 onClick={() => {
                                     console.log('[Debug] Logout clicked');
                                     logout();
-                                    alert('Logged out successfully');
+                                    showToast('Logged out successfully', 'success');
                                 }}
                                 className="p-2 hover:bg-gray-900 rounded-full text-gray-400 hover:text-white"
                                 title="Logout"
@@ -151,7 +151,7 @@ export const Header: React.FC = () => {
                                 <button
                                     onClick={() => {
                                         console.log('[Debug] Get App clicked');
-                                        alert('App download coming soon!');
+                                        showAlert('Coming Soon', 'App download coming soon!', 'info');
                                         setShowMoreMenu(false);
                                     }}
                                     className="w-full px-4 py-2 text-left hover:bg-gray-800 transition-colors text-sm"
@@ -161,7 +161,7 @@ export const Header: React.FC = () => {
                                 <button
                                     onClick={() => {
                                         console.log('[Debug] Language clicked');
-                                        alert('Language: English');
+                                        showAlert('Language', 'Currently only English is supported.', 'info');
                                         setShowMoreMenu(false);
                                     }}
                                     className="w-full px-4 py-2 text-left hover:bg-gray-800 transition-colors text-sm"
@@ -171,7 +171,7 @@ export const Header: React.FC = () => {
                                 <button
                                     onClick={() => {
                                         console.log('[Debug] Dark Mode clicked');
-                                        alert('Already in Dark Mode!');
+                                        showToast('Already in Dark Mode!', 'info');
                                         setShowMoreMenu(false);
                                     }}
                                     className="w-full px-4 py-2 text-left hover:bg-gray-800 transition-colors text-sm"
@@ -182,7 +182,7 @@ export const Header: React.FC = () => {
                                 <button
                                     onClick={() => {
                                         console.log('[Debug] Feedback clicked');
-                                        alert('Feedback form coming soon!');
+                                        showAlert('Feedback', 'Feedback form coming soon!', 'info');
                                         setShowMoreMenu(false);
                                     }}
                                     className="w-full px-4 py-2 text-left hover:bg-gray-800 transition-colors text-sm"
@@ -292,12 +292,6 @@ export const Header: React.FC = () => {
                 </div>
             )}
 
-            {/* Welcome Toast */}
-            {showWelcomeToast && (
-                <div className="fixed top-20 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-2xl z-[101] animate-in slide-in-from-top-2 fade-in">
-                    ✅ Welcome, {user?.username}! You're now browsing as a guest.
-                </div>
-            )}
         </>
     );
 };

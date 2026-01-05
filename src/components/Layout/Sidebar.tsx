@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Compass, Users, Video, PlusSquare, User } from 'lucide-react';
+import { Home, PlusSquare, User } from 'lucide-react';
 import clsx from 'clsx';
 
 import { useAuth } from '../../context/AuthContext';
@@ -11,12 +11,6 @@ export const Sidebar: React.FC = () => {
         { icon: Home, label: 'For You', to: '/' },
         { icon: PlusSquare, label: 'Create', to: '/create' },
         { icon: User, label: 'Profile', to: '/profile' },
-    ];
-
-    const following = [
-        { name: 'cyber_dev', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=cyber' },
-        { name: 'game_wizard', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wizard' },
-        { name: 'pixel_art', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=pixel' },
     ];
 
     return (
